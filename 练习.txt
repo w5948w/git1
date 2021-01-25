@@ -1,0 +1,48 @@
+查询平均成绩大于60的同学的学号和平均成绩
+select sid,avg(score) from sc group by sid having avg(score) > 60;
+查询所有同学的学号 姓名 选课数 总成绩
+select id,name,sum(kid),sum(score) from st left join sc on st.id = sc.sid group by sc.sid;
+                        count(kid) //改错
+查询成绩总和大于300的学生
+select st.* from st left join sc on st.id = sc.sid group by sid having sum(score) > 300;
+查询没学过’叶平‘老师的同学的学号，姓名
+错误写法：
+left join sc on st.id = sc.sid,  //不要加 逗号
+left join k on sc.kid = k.id,   //不要加 逗号
+正确写法：
+select st.* from st where id not in(select sid from sc 
+	inner join k on sc.kid = k.id
+	inner join t on k.tid = t.id
+	where t.name != '叶平')
+列出有2门(含2门)以上不及格课程的学生姓名及平均成绩//有的课程可能没考
+错误：
+select st.name,avg(score) from st left join sc on st.id = sc.sid group by st.id having count(
+select * ) > 2;
+正确：
+select st.name,avg(score) from st left join sc on st.id = sc.sid where sid in(
+	select sid from sc where score < 60 group by sid having count(sid)>=2);
+每门课程不及格人数大于2的课程信息
+select k.* from k where k.id in(
+	select sid from sc where score < 60 group by kid having count(kid) > 2);
+改进方案：本题无需子查询
+
+查询1课程比2课程成绩高的所有学生的学号 //思路：自己跟自己比较,使用自连接   Beautiful
+select sid from sc 
+	left join k onsc.kid = k.id where 
+正确解法：
+select s1.sid from sc s1 inner join sc s2 on s1.sid = s2.sid where s1.kid=1 and s2.kid = 2 and s1.score > s2.score;
+每科成绩最好的学生及成绩信息
+select sc.sid,sc.score from sc where sid in (
+	select sid from sc inner join k on sc.kid = k.id group by k.id having max(sc.score);
+查询选修 叶平 老师所受课程的学生中，成绩最高的学生姓名及成绩（降序+分页）//max()需要在分组中使用,但此题不需要分组
+select st.name,sc.score from sc 
+	inner join st on st.id = sc.sid 
+	inner join k on sc.kid = k.id
+	inner join t on k.tid = t.id    	where t.name = '叶平' order by sc.score limit 1;	
+查出每门课成绩都大于80的学生姓名//所有课程最低分数那门课>80  本题可以不用子查询，直接用连接查询即可 
+	 tip:连接查询和横向的(内、外、自），联合查询是纵向的（union、union all不去重） 子查询：比较消耗性能，不推荐
+select st.name from st where st.id in(
+	select sid from sc group by sid having min(score)>80);
+
+
+

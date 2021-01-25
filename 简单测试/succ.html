@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>succ</title>
+</head>
+<body>
+<h2>Thymeleaf渲染的页面</h2>
+<!--经过thymeleaf解析后只显示：Thymeleaf! // m.addAttribute("who","Thymeleaf!");添加的-->
+<!--不经过thymeleaf解析，直接访问succ.html页面只显示：我是thymeleaf。-->
+<div th:text="${who}">我是thymeleaf。</div>
+</body>
+</html>
